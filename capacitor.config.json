@@ -1,0 +1,7 @@
+{
+  "appId": "br.sattv.app",
+  "appName": "SAT TV",
+  "webDir": "www",
+  "server": { "androidScheme": "http", "cleartext": true },
+  "android": { "allowMixedContent": true }
+}

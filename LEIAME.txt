@@ -1,0 +1,8 @@
+SAT TV - projeto para gerar o APK no GitHub
+
+1. Crie um repositorio no GitHub e envie TODOS estes arquivos (inclusive a pasta .github).
+2. Abra a aba Actions > "Build APK" > Run workflow (ou aguarde: ele roda sozinho a cada envio).
+3. Quando terminar (cerca de 5 a 10 min), abra a execucao e baixe "SAT-TV-apk" em Artifacts.
+4. Dentro do zip baixado esta o app-debug.apk. Instale na TV Box ou no celular.
+
+Para atualizar o app: troque o arquivo www/index.html no repositorio. Um novo APK sera gerado.
