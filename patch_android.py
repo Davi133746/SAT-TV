@@ -34,3 +34,68 @@ bn = Image.new('RGBA', (320, 180), (4, 10, 34, 255))
 bn.paste(img.resize((160, 160), Image.LANCZOS), (80, 10))
 bn.save(f'{res}/drawable/banner.png')
 print('Android ajustado: orientacao, TV Box, icones e banner.')
+
+# Versao do app: sobe sozinha a cada build (numero da execucao no GitHub)
+run = os.environ.get('GITHUB_RUN_NUMBER', '1')
+gp = 'android/app/build.gradle'
+g = open(gp, encoding='utf-8').read()
+g = re.sub(r'versionCode\s+\d+', f'versionCode {run}', g, count=1)
+g = re.sub(r'versionName\s+"[^"]*"', f'versionName "1.{run}"', g, count=1)
+open(gp, 'w', encoding='utf-8').write(g)
+print('Versao do app:', run)
+
+# Volume e botao Voltar tratados pelo app (interface do decodificador)
+import glob
+for jp in glob.glob('android/app/src/main/java/**/MainActivity.java', recursive=True):
+    j = open(jp, encoding='utf-8').read()
+    if 'dispatchKeyEvent' not in j:
+        body = '''public class MainActivity extends BridgeActivity {
+    @Override
+    public void onCreate(android.os.Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getBridge().getWebView().addJavascriptInterface(new Object() {
+            @android.webkit.JavascriptInterface
+            public String model() { return android.os.Build.MODEL == null ? "" : android.os.Build.MODEL; }
+            @android.webkit.JavascriptInterface
+            public String name() {
+                try {
+                    String n = android.provider.Settings.Global.getString(MainActivity.this.getContentResolver(), "device_name");
+                    return n == null ? "" : n;
+                } catch (Exception e) { return ""; }
+            }
+        }, "SatDev");
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(android.view.KeyEvent e) {
+        int k = e.getKeyCode();
+        boolean up = k == android.view.KeyEvent.KEYCODE_VOLUME_UP;
+        boolean down = k == android.view.KeyEvent.KEYCODE_VOLUME_DOWN;
+        boolean mute = k == android.view.KeyEvent.KEYCODE_VOLUME_MUTE;
+        boolean back = k == android.view.KeyEvent.KEYCODE_BACK;
+        if (up || down || mute || back) {
+            if (e.getAction() == android.view.KeyEvent.ACTION_DOWN) {
+                if (back) {
+                    if (e.getRepeatCount() == 0) getBridge().getWebView().evaluateJavascript("window.nativeBack&&window.nativeBack()", null);
+                } else {
+                    android.media.AudioManager am = (android.media.AudioManager) getSystemService(android.content.Context.AUDIO_SERVICE);
+                    if (am.isVolumeFixed() && !mute) {
+                        getBridge().getWebView().evaluateJavascript("window.nativeVolStep&&window.nativeVolStep(" + (up ? 1 : -1) + ")", null);
+                    } else {
+                        int dir = up ? android.media.AudioManager.ADJUST_RAISE : (down ? android.media.AudioManager.ADJUST_LOWER : android.media.AudioManager.ADJUST_TOGGLE_MUTE);
+                        am.adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC, dir, 0);
+                        int v = am.getStreamVolume(android.media.AudioManager.STREAM_MUSIC);
+                        int m = am.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC);
+                        boolean mu = am.isStreamMute(android.media.AudioManager.STREAM_MUSIC);
+                        getBridge().getWebView().evaluateJavascript("window.nativeVol&&window.nativeVol(" + v + "," + m + "," + mu + ")", null);
+                    }
+                }
+            }
+            return true;
+        }
+        return super.dispatchKeyEvent(e);
+    }
+}'''
+        j2 = re.sub(r'public class MainActivity extends BridgeActivity\s*\{\s*\}', lambda m: body, j, count=1)
+        open(jp, 'w', encoding='utf-8').write(j2)
+        print('MainActivity ajustada:', jp, '(alterada)' if j2 != j else '(NAO alterada)')
