@@ -35,14 +35,19 @@ bn.paste(img.resize((160, 160), Image.LANCZOS), (80, 10))
 bn.save(f'{res}/drawable/banner.png')
 print('Android ajustado: orientacao, TV Box, icones e banner.')
 
-# Versao do app: sobe sozinha a cada build (numero da execucao no GitHub)
-run = os.environ.get('GITHUB_RUN_NUMBER', '1')
+# Versao do app: codigo = numero do arquivo versao.txt * 1000 + numero da execucao (sempre sobe)
+run = int(os.environ.get('GITHUB_RUN_NUMBER', '1')) % 1000
+try:
+    base = int(open('versao.txt', encoding='utf-8').read().split()[0])
+except Exception:
+    base = 1
+code = base * 1000 + run
 gp = 'android/app/build.gradle'
 g = open(gp, encoding='utf-8').read()
-g = re.sub(r'versionCode\s+\d+', f'versionCode {run}', g, count=1)
-g = re.sub(r'versionName\s+"[^"]*"', f'versionName "1.{run}"', g, count=1)
+g = re.sub(r'versionCode\s+\d+', f'versionCode {code}', g, count=1)
+g = re.sub(r'versionName\s+"[^"]*"', f'versionName "1.1.{base}"', g, count=1)
 open(gp, 'w', encoding='utf-8').write(g)
-print('Versao do app:', run)
+print('Versao do app: codigo', code, '/ nome 1.1.%d' % base)
 
 # Volume e botao Voltar tratados pelo app (interface do decodificador)
 import glob

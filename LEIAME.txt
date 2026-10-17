@@ -1,8 +1,12 @@
-SAT TV - projeto para gerar o APK no GitHub
+SAT TV - atualizacao com codigo de versao 2
 
-1. Crie um repositorio no GitHub e envie TODOS estes arquivos (inclusive a pasta .github).
-2. Abra a aba Actions > "Build APK" > Run workflow (ou aguarde: ele roda sozinho a cada envio).
-3. Quando terminar (cerca de 5 a 10 min), abra a execucao e baixe "SAT-TV-apk" em Artifacts.
-4. Dentro do zip baixado esta o app-debug.apk. Instale na TV Box ou no celular.
+Envie TODOS estes arquivos para o GitHub (Add file > Upload files > Commit changes):
+  index.html, patch_android.py, versao.txt, debug.keystore, build-apk.yml
 
-Para atualizar o app: troque o arquivo www/index.html no repositorio. Um novo APK sera gerado.
+Depois abra o build-apk.yml no GitHub, toque no lapis e troque o nome para
+  .github/workflows/build-apk.yml
+(isso substitui o gerador antigo; apague o build-apk.yml solto da raiz se sobrar).
+
+Para a PROXIMA atualizacao, basta trocar o numero em versao.txt (2 -> 3) e enviar o index.html novo.
+IMPORTANTE: para instalar por cima sem apagar, o APK precisa ter a MESMA assinatura do instalado
+(o debug.keystore). Se o app instalado foi gerado antes do debug.keystore, desinstale UMA vez.
