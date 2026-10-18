@@ -196,6 +196,17 @@ video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;backgr
 #rad{inset:0;background:#0b2a80}#rad-bg{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover}
 #rad-t{position:absolute;left:0;right:0;top:34vh;text-align:center;font:800 clamp(26px,7.4vh,64px) system-ui,sans-serif;letter-spacing:.06em;text-shadow:0 2px 14px rgba(0,0,50,.75)}
 #rad-c{position:absolute;left:0;right:0;top:49vh;text-align:center;font:700 clamp(46px,14vh,118px) system-ui,sans-serif;font-variant-numeric:tabular-nums;text-shadow:0 2px 14px rgba(0,0,50,.75)}
+/* barra do canal: gradiente ate 50% da tela e elementos maiores */
+#ban{padding:0;height:50vh;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(180deg,rgba(10,18,80,0) 0,rgba(16,30,120,.55) 38%,rgba(10,20,92,.95) 100%)}
+#ib-row{height:17vh;gap:1.5vw}#ib-ch{width:20vw}#ib-ch b{font-size:clamp(18px,4.2vh,34px)}#ib-n{font-size:clamp(17px,3.7vh,29px)}
+#ib-t{font-size:clamp(26px,6.4vh,50px)}#ib-time{font-size:clamp(15px,3.3vh,25px);gap:14px}.chip{padding:0 9px}
+#ib-bar{height:clamp(7px,1.4vh,12px)}#ib-nt{font-size:clamp(19px,5vh,38px)}#ib-nh{font-size:clamp(14px,3vh,22px)}
+#ib-mp{font-size:clamp(15px,3.3vh,25px)}#ib-msg{margin-bottom:2.4vh}
+#ib-foot{height:9.4vh;font-size:clamp(13px,2.8vh,20px);gap:1.2vw}#ib-foot .dot{width:2.1vh;height:2.1vh}#ib-logo{height:6.4vh;width:6.4vh}
+#err{bottom:56vh}
+#ib-ch{width:15vw}#ib-cur{flex:2}#ib-bar{flex:.6}#ib-nx{flex:1}
+#ban{align-items:stretch}#ib-ch{width:17vw}
+#ib-foot{padding:0 3vw;gap:.9vw;font-size:clamp(12px,2.5vh,18px)}#ib-foot .lgs{gap:1.2vw;margin-left:1vw}#ib-foot .dot{width:1.9vh;height:1.9vh}
 </style></head>
 <body><div id="app">
 <video id="v" autoplay playsinline webkit-playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"></video>
