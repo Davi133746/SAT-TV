@@ -150,7 +150,7 @@ for jp in glob.glob('android/app/src/main/java/**/MainActivity.java', recursive=
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         stopVlc(false);
         if (satLibVlc != null) { satLibVlc.release(); satLibVlc = null; }
         super.onDestroy();
