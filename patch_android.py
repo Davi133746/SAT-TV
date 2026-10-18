@@ -71,11 +71,13 @@ for jp in glob.glob('android/app/src/main/java/**/MainActivity.java', recursive=
         super.onCreate(savedInstanceState);
         android.webkit.WebView web = getBridge().getWebView();
         web.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+        web.setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null);
         android.view.ViewParent parent = web.getParent();
         if (parent instanceof android.view.ViewGroup) {
             android.view.ViewGroup root = (android.view.ViewGroup) parent;
             satVideoLayout = new org.videolan.libvlc.util.VLCVideoLayout(this);
-            satVideoLayout.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            satVideoLayout.setBackgroundColor(android.graphics.Color.BLACK);
+            satVideoLayout.setAlpha(1.0f);
             satVideoLayout.setVisibility(android.view.View.GONE);
             root.addView(satVideoLayout, 0, new android.view.ViewGroup.LayoutParams(
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT,
