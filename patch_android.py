@@ -49,16 +49,39 @@ g = re.sub(r'versionName\s+"[^"]*"', f'versionName "1.1.{base}"', g, count=1)
 open(gp, 'w', encoding='utf-8').write(g)
 print('Versao do app: codigo', code, '/ nome 1.1.%d' % base)
 
+# LibVLC nativo: motor de reprodução VLC integrado ao APK.
+gradle = open(gp, encoding='utf-8').read()
+if 'org.videolan.android:libvlc-all' not in gradle:
+    gradle = re.sub(r'(dependencies\s*\{)', lambda m: m.group(1) + "\n    implementation 'org.videolan.android:libvlc-all:3.6.0'", gradle, count=1)
+open(gp, 'w', encoding='utf-8').write(gradle)
+print('Dependencia LibVLC adicionada.')
+
 # Volume e botao Voltar tratados pelo app (interface do decodificador)
 import glob
 for jp in glob.glob('android/app/src/main/java/**/MainActivity.java', recursive=True):
     j = open(jp, encoding='utf-8').read()
     if 'dispatchKeyEvent' not in j:
-        body = '''public class MainActivity extends BridgeActivity {
+        body = r'''public class MainActivity extends BridgeActivity {
+    private org.videolan.libvlc.LibVLC satLibVlc;
+    private org.videolan.libvlc.MediaPlayer satPlayer;
+    private org.videolan.libvlc.util.VLCVideoLayout satVideoLayout;
+
     @Override
     public void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getBridge().getWebView().addJavascriptInterface(new Object() {
+        android.webkit.WebView web = getBridge().getWebView();
+        web.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+        android.view.ViewParent parent = web.getParent();
+        if (parent instanceof android.view.ViewGroup) {
+            android.view.ViewGroup root = (android.view.ViewGroup) parent;
+            satVideoLayout = new org.videolan.libvlc.util.VLCVideoLayout(this);
+            satVideoLayout.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            satVideoLayout.setVisibility(android.view.View.GONE);
+            root.addView(satVideoLayout, 0, new android.view.ViewGroup.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT));
+        }
+        web.addJavascriptInterface(new Object() {
             @android.webkit.JavascriptInterface
             public String model() { return android.os.Build.MODEL == null ? "" : android.os.Build.MODEL; }
             @android.webkit.JavascriptInterface
@@ -69,6 +92,68 @@ for jp in glob.glob('android/app/src/main/java/**/MainActivity.java', recursive=
                 } catch (Exception e) { return ""; }
             }
         }, "SatDev");
+        web.addJavascriptInterface(new Object() {
+            @android.webkit.JavascriptInterface
+            public void play(final String url) { runOnUiThread(() -> playVlc(url)); }
+            @android.webkit.JavascriptInterface
+            public void stop() { runOnUiThread(() -> stopVlc(true)); }
+        }, "SatVlc");
+    }
+
+    private void emitVlc(String event) {
+        if (getBridge() != null && getBridge().getWebView() != null) {
+            final String js = "window.onNativeVlcEvent&&window.onNativeVlcEvent('" + event + "')";
+            runOnUiThread(() -> getBridge().getWebView().evaluateJavascript(js, null));
+        }
+    }
+
+    private void playVlc(String url) {
+        if (url == null || url.trim().isEmpty() || satVideoLayout == null) { emitVlc("error"); return; }
+        try {
+            stopVlc(false);
+            if (satLibVlc == null) satLibVlc = new org.videolan.libvlc.LibVLC(this);
+            satPlayer = new org.videolan.libvlc.MediaPlayer(satLibVlc);
+            satPlayer.setEventListener(event -> {
+                switch (event.type) {
+                    case org.videolan.libvlc.MediaPlayer.Event.Playing: emitVlc("playing"); break;
+                    case org.videolan.libvlc.MediaPlayer.Event.Buffering: emitVlc("buffering"); break;
+                    case org.videolan.libvlc.MediaPlayer.Event.EncounteredError: emitVlc("error"); break;
+                    case org.videolan.libvlc.MediaPlayer.Event.EndReached: emitVlc("error"); break;
+                    case org.videolan.libvlc.MediaPlayer.Event.Stopped: emitVlc("stopped"); break;
+                }
+            });
+            satVideoLayout.setVisibility(android.view.View.VISIBLE);
+            satPlayer.attachViews(satVideoLayout, null, false, true);
+            org.videolan.libvlc.Media media = new org.videolan.libvlc.Media(satLibVlc, android.net.Uri.parse(url));
+            media.setHWDecoderEnabled(true, false);
+            media.addOption(":network-caching=1500");
+            satPlayer.setMedia(media);
+            media.release();
+            satPlayer.play();
+        } catch (Exception e) {
+            stopVlc(true);
+            emitVlc("error");
+        }
+    }
+
+    private void stopVlc(boolean notify) {
+        try {
+            if (satPlayer != null) {
+                satPlayer.stop();
+                satPlayer.detachViews();
+                satPlayer.release();
+                satPlayer = null;
+            }
+        } catch (Exception ignored) { satPlayer = null; }
+        if (satVideoLayout != null) satVideoLayout.setVisibility(android.view.View.GONE);
+        if (notify) emitVlc("stopped");
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopVlc(false);
+        if (satLibVlc != null) { satLibVlc.release(); satLibVlc = null; }
+        super.onDestroy();
     }
 
     @Override

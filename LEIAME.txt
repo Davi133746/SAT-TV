@@ -10,3 +10,7 @@ Depois abra o build-apk.yml no GitHub, toque no lapis e troque o nome para
 Para a PROXIMA atualizacao, basta trocar o numero em versao.txt (2 -> 3) e enviar o index.html novo.
 IMPORTANTE: para instalar por cima sem apagar, o APK precisa ter a MESMA assinatura do instalado
 (o debug.keystore). Se o app instalado foi gerado antes do debug.keystore, desinstale UMA vez.
+
+ATUALIZAÇÃO: PLAYER NATIVO LIBVLC
+O APK Android agora inclui a biblioteca LibVLC e tenta reproduzir os canais pelo motor nativo do VLC, mantendo o player HTML/HLS como alternativa quando a ponte nativa não estiver disponível. A integração é gerada pelo patch_android.py durante o workflow do GitHub Actions; portanto, compile um novo APK executando Actions > Build APK > Run workflow.
+A alteração de código foi verificada por teste sintático do JavaScript e simulação do patch Android, mas o APK ainda precisa ser compilado no GitHub Actions e testado em um dispositivo real antes de considerar a reprodução validada.
