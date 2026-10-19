@@ -127,11 +127,10 @@ for jp in glob.glob('android/app/src/main/java/**/MainActivity.java', recursive=
             satVideoLayout.setVisibility(android.view.View.VISIBLE);
             satPlayer.attachViews(satVideoLayout, null, true, true);
             org.videolan.libvlc.Media media = new org.videolan.libvlc.Media(satLibVlc, android.net.Uri.parse(url));
-            // Perfil de teste para celular Android 15 (incluindo Redmi Note 12 4G):
-            // decodificacao por software para investigar falhas de video HLS.
+            // Preferir decodificacao por hardware para reduzir carga da CPU.
             // TextureView ajuda na composicao da imagem com a interface WebView.
-            media.setHWDecoderEnabled(false, false);
-            media.addOption(":avcodec-hw=none");
+            media.setHWDecoderEnabled(true, true);
+            media.addOption(":avcodec-hw=mediacodec");
             // Buffer de rede moderado para HLS ao vivo; pode aumentar um pouco o atraso.
             media.addOption(":network-caching=3000");
             media.addOption(":live-caching=3000");
