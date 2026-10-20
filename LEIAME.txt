@@ -1,23 +1,3 @@
-SAT TV - atualizacao com codigo de versao 2
-
-Envie TODOS estes arquivos para o GitHub (Add file > Upload files > Commit changes):
-  index.html, patch_android.py, versao.txt, debug.keystore, build-apk.yml
-
-Depois abra o build-apk.yml no GitHub, toque no lapis e troque o nome para
-  .github/workflows/build-apk.yml
-(isso substitui o gerador antigo; apague o build-apk.yml solto da raiz se sobrar).
-
-Para a PROXIMA atualizacao, basta trocar o numero em versao.txt (2 -> 3) e enviar o index.html novo.
-IMPORTANTE: para instalar por cima sem apagar, o APK precisa ter a MESMA assinatura do instalado
-(o debug.keystore). Se o app instalado foi gerado antes do debug.keystore, desinstale UMA vez.
-
-ATUALIZAÇÃO: PLAYER NATIVO LIBVLC
-O APK Android agora inclui a biblioteca LibVLC e tenta reproduzir os canais pelo motor nativo do VLC, mantendo o player HTML/HLS como alternativa quando a ponte nativa não estiver disponível. A integração é gerada pelo patch_android.py durante o workflow do GitHub Actions; portanto, compile um novo APK executando Actions > Build APK > Run workflow.
-A alteração de código foi verificada por teste sintático do JavaScript e simulação do patch Android, mas o APK ainda precisa ser compilado no GitHub Actions e testado em um dispositivo real antes de considerar a reprodução validada.
-
-
-AJUSTE DE REPRODUCAO LibVLC (perfil experimental)
-- Decodificacao de video por software: setHWDecoderEnabled(false, false) e :avcodec-hw=none.
-- Cache de rede/live em 3000 ms para streams HLS.
-- Nenhuma correcao especifica de video Amlogic foi adicionada.
-- Este pacote contem o codigo-fonte; nao e um APK compilado nem foi validado em dispositivo.
+SAT TV - versao FTA (codigo 7)
+Envie index.html e versao.txt para o GitHub (Add file > Upload files > Commit changes).
+Espere o build ficar verde na aba Actions e baixe o APK (ou em Releases).
